@@ -22,7 +22,7 @@ class Sobre:
             vals = {'usuario':self.servidor.usuario,
                 'clave': self.servidor.clave,
                 'rutEmisor': self.rutEmisor,
-                'sobre': str(sobre.encode('utf-8')),
+                'sobre': sobre,
                 'impresion':self.impresion}
             estado, respuesta = cliente.recibo_venta(vals)
             print(sobre)
@@ -60,17 +60,17 @@ class Documento:
             items.add(Items(item_val))
         self.items = items
         
-        self.mntNoGrv = vals.get('mntNoGrv', 0.0)
-        self.mntNetoIVATasaMin = vals.get('mntNetoIVATasaMin', 0.0)
-        self.mntNetoIVATasaBasica = vals.get('mntNetoIVATasaBasica', 0.0)
-        self.ivaTasaMin = vals.get('ivaTasaMin', 0.0)
-        self.ivaTasaBasica = vals.get('ivaTasaBasica', 0.0)
-        self.mntIVATasaMin = vals.get('mntIVATasaMin', 0.0)
-        self.mntIVATasaBasica = vals.get('mntIVATasaBasica', 0.0)
-        self.mntTotal = vals.get('mntTotal', 0.0)
-        self.cantLinDet = vals.get('cantLinDet', 0.0) or len(items)
-        self.montoNF = vals.get('montoNF', 0.0)
-        self.mntPagar= vals.get('mntPagar', 0.0)
+        self.mntNoGrv = round(vals.get('mntNoGrv', 0.0),2)
+        self.mntNetoIVATasaMin = round(vals.get('mntNetoIVATasaMin', 0.0),2)
+        self.mntNetoIVATasaBasica = round(vals.get('mntNetoIVATasaBasica', 0.0),2)
+        self.ivaTasaMin = round(vals.get('ivaTasaMin', 0.0),2)
+        self.ivaTasaBasica = round(vals.get('ivaTasaBasica', 0.0),2)
+        self.mntIVATasaMin = round(vals.get('mntIVATasaMin', 0.0),2)
+        self.mntIVATasaBasica = round(vals.get('mntIVATasaBasica', 0.0),2)
+        self.mntTotal = round(vals.get('mntTotal', 0.0),2)
+        self.cantLinDet = vals.get('cantLinDet', 0) or len(items)
+        self.montoNF = round(vals.get('montoNF', 0.0),2)
+        self.mntPagar= round(vals.get('mntPagar', 0.0),2)
         
         referencias = set()
         for ref in vals.get('referencias', []):

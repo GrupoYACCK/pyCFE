@@ -68,11 +68,11 @@ class CFESimple():
                 tag = etree.QName(self._ns0, 'CdgDGISucur')
                 etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text=str(sucursal.codigo)
                 tag = etree.QName(self._ns0, 'DomFiscal')
-                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text=sucursal.direccion
+                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text= "" #sucursal.direccion
                 tag = etree.QName(self._ns0, 'Ciudad')
-                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text=sucursal.ciudad
+                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text="" # sucursal.ciudad
                 tag = etree.QName(self._ns0, 'Departamento')
-                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text=sucursal.departamento
+                etree.SubElement(emisor, tag.text, nsmap={'ns0':tag.namespace}).text= "" #sucursal.departamento
                 break
         else:
             tag = etree.QName(self._ns0, 'DomFiscal')
