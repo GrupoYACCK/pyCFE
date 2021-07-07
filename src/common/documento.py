@@ -22,7 +22,7 @@ class Sobre:
             vals = {'usuario':self.servidor.usuario,
                 'clave': self.servidor.clave,
                 'rutEmisor': self.rutEmisor,
-                'sobre': sobre,
+                'sobre': str(sobre.encode('utf-8')),
                 'impresion':self.impresion}
             estado, respuesta = cliente.recibo_venta(vals)
             print(sobre)
