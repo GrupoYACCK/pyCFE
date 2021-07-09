@@ -29,6 +29,7 @@ class SobreFactura():
         cfe.append(xml)
         etree.SubElement(cfe, "Anulado").text="0"
         etree.SubElement(cfe, "Addenda").text= sobre.adenda or  ""
+        
         sobre = etree.tostring(self._root,  pretty_print=True, xml_declaration = True, encoding='utf-8')
         return str(sobre, 'utf-8').replace('<CFE version="1.0">','<CFE version="1.0" xmlns:ns="http://efactura.info" >')
 

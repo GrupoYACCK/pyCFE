@@ -25,7 +25,6 @@ class Sobre:
                 'sobre': sobre,
                 'impresion':self.impresion}
             estado, respuesta = cliente.recibo_venta(vals)
-            print(sobre)
             return {'estado':estado, 'respuesta':respuesta}
         else:
             return {}

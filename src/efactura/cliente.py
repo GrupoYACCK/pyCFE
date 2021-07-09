@@ -1,11 +1,10 @@
 from pysimplesoap.client import SoapClient, SoapFault, SimpleXMLElement
+from lxml import etree
 import sys
 if sys.version > '3':
     unicode = str
 import logging
-log = logging.getLogger(__name__)
-
-
+logger = logging.getLogger(__name__)
 
 class Client(object):
 
@@ -48,8 +47,7 @@ class Client(object):
     def _call_ws(self, xml):
         xml_response = self._client.send(self._method, xml)
         
-        print(xml_response)
-        log.debug(xml_response)
+        logger.info(xml_response)
         response = SimpleXMLElement(xml_response, namespace=self._namespace,
                                     jetty=False)
         if self._exceptions and response("Fault", ns=list(self._soap_namespaces.values()), error=False):
@@ -77,7 +75,10 @@ class Client(object):
         try:
             xml=self._soapenv %(params.get('usuario'), params.get('clave'), params.get('rutEmisor'),
                                      params.get('sobre'), params.get('impresion'))
-            print(xml)
+            parser = etree.XMLParser(strip_cdata=False)
+            root = etree.fromstring(xml, parser)
+            xml = etree.tostring(root,  pretty_print=True, xml_declaration = True, encoding='utf-8')
+            logger.info(xml)
             #return True, call(self._url, soapenv, namespace, soapaction = self._soapaction, encoding = "UTF-8")
             #return True,  self._client.invoke(name, (), params)
             response = self._call_ws(xml)
