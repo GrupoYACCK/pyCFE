@@ -46,7 +46,7 @@ class Client(object):
 
     def _call_ws(self, xml):
         xml_response = self._client.send(self._method, xml)
-        
+        print(xml_response)
         logger.info(xml_response)
         response = SimpleXMLElement(xml_response, namespace=self._namespace,
                                     jetty=False)
