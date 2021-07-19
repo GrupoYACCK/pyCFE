@@ -46,8 +46,7 @@ class Client(object):
 
     def _call_ws(self, xml):
         xml_response = self._client.send(self._method, xml)
-        print(xml_response)
-        logger.info(xml_response)
+        logger.info(str(xml_response,'utf-8'))
         response = SimpleXMLElement(xml_response, namespace=self._namespace,
                                     jetty=False)
         if self._exceptions and response("Fault", ns=list(self._soap_namespaces.values()), error=False):
@@ -78,7 +77,7 @@ class Client(object):
             parser = etree.XMLParser(strip_cdata=False)
             root = etree.fromstring(xml, parser)
             xml = etree.tostring(root,  pretty_print=True, xml_declaration = True, encoding='utf-8')
-            logger.info(xml)
+            logger.info(str(xml,'utf-8'))
             #return True, call(self._url, soapenv, namespace, soapaction = self._soapaction, encoding = "UTF-8")
             #return True,  self._client.invoke(name, (), params)
             response = self._call_ws(xml)

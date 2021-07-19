@@ -48,8 +48,9 @@ class CFESimple():
         tag = etree.QName(self._ns0, 'FchEmis')
         etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text=documento.fecEmision
         #Ojo
-        tag = etree.QName(self._ns0, 'MntBruto')
-        etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.montosBrutos # '1'
+        if documento.montosBrutos == '1':
+            tag = etree.QName(self._ns0, 'MntBruto')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.montosBrutos # '1'
         #Ojo preguntar
         tag = etree.QName(self._ns0, 'FmaPago')
         etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.formaPago # "1"
@@ -143,13 +144,20 @@ class CFESimple():
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=line.descripcion
         
         tag = etree.QName(self._ns0, 'Cantidad')
-        etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=str(line.cantidad)
+        etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=str(round(line.cantidad,3))
         
         tag = etree.QName(self._ns0, 'UniMed')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=line.unidadMedida or 'N/A'
         
         tag = etree.QName(self._ns0, 'PrecioUnitario')
-        etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(line.precioUnitario)
+        etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.precioUnitario,2))
+        
+        if line.descuento:
+            tag = etree.QName(self._ns0, 'DescuentoPct')
+            etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.descuento,3))
+        if line.descuentoMonto:
+            tag = etree.QName(self._ns0, 'DescuentoMonto')
+            etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.descuentoMonto,2))
         
         tag = etree.QName(self._ns0, 'MontoItem')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(line.montoItem)

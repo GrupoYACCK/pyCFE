@@ -38,7 +38,7 @@ class Documento:
         self.moneda = vals.get('moneda', '')
         self.tasaCambio = vals.get("tasaCambio","")
         
-        self.montosBrutos = vals.get("montosBrutos", True)
+        self.montosBrutos = vals.get("montosBrutos", '')
         
         self.formaPago = vals.get("formaPago","")
         
@@ -93,15 +93,16 @@ class Items:
     def __init__(self, vals):
         self.indicadorFacturacion = vals.get('indicadorFacturacion', '')
         self.descripcion = vals.get('descripcion', '')
-        self.cantidad = round(vals.get('cantidad', 0.0), 10)
+        self.cantidad = round(vals.get('cantidad', 0.0), 3)
         self.unidadMedida = vals.get('unidadMedida', 'N/A')
         self.precioUnitario = round(vals.get('precioUnitario', 0.0), 10)
-        self.montoItem = round(vals.get('montoItem', 0.0), 2)
+        self.montoItem = round(vals.get('montoItem', 0.0), 8)
         
         self.codProducto = vals.get('codProducto', '')
-        self.descuentoTipo = vals.get('descuentoTipo', '%')
+        #self.descuentoTipo = vals.get('descuentoTipo', '%')
         self.descuento = vals.get('descuento', 0.0)
-        self.recargoTipo = vals.get('recargoTipo', '$')
+        self.descuentoMonto = vals.get('descuentoMonto', 0.0)
+        self.recargoMonto = vals.get('recargoMonto', 0.0)
         self.recargo = vals.get('recargo', 0.0)
 
         
