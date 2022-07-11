@@ -184,7 +184,27 @@ class CFESimple():
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.numero
             tag = etree.QName(self._ns0, 'FechaCFEref')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.fechaCFEref
-        
+
+    def _getDescuento(self, documento, etck):
+        if documento.descuentos:
+            tag = etree.QName(self._ns0, 'DscRcgGlobal')
+            desc_global = etree.SubElement(etck, tag.text, nsmap={'ns0': tag.namespace})
+            line_number = 1
+            for descuento in documento.descuentos:
+                tag = etree.QName(self._ns0, 'DRG_Item')
+                item = etree.SubElement(desc_global, tag.text, nsmap={'ns0': tag.namespace})
+                tag = etree.QName(self._ns0, 'NroLinDR')
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = str(line_number)
+                tag = etree.QName(self._ns0, 'TpoMovDR')
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = 'D'
+                tag = etree.QName(self._ns0, 'GlosaDR')
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = descuento.descripcion
+                tag = etree.QName(self._ns0, 'ValorDR')
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = str(descuento.monto)
+                tag = etree.QName(self._ns0, 'IndFactDR')
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = descuento.indicadorFacturacion
+                line_number+=1
+
     def getInvoice(self, documento):
         xmlns=etree.QName(None, 'CFE')
         nsmap1=OrderedDict([('ns0', self._ns0)] )
@@ -223,10 +243,11 @@ class CFESimple():
         for line in documento.items:
             i+=1
             self._getLines(detalle, line, i)
-        
+
+        self._getDescuento(documento, etck)
         if documento.tipoCFE in ['102', '103', '112', '113']:
             self._getRef(documento, etck)
-        
+
         tag = etree.QName(self._ns0, 'DigestValue')
         etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
         

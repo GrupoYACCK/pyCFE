@@ -58,7 +58,11 @@ class Documento:
         for item_val in vals.get('items', []):
             items.add(Items(item_val))
         self.items = items
-        
+
+        descuentos = set()
+        for desc_val in vals.get('descuentos', []):
+            descuentos.add(Descuento(desc_val))
+        self.descuentos = descuentos
         self.mntNoGrv = round(vals.get('mntNoGrv', 0.0),2)
         self.mntNetoIVATasaMin = round(vals.get('mntNetoIVATasaMin', 0.0),2)
         self.mntNetoIVATasaBasica = round(vals.get('mntNetoIVATasaBasica', 0.0),2)
@@ -105,7 +109,14 @@ class Items:
         self.recargoMonto = vals.get('recargoMonto', 0.0)
         self.recargo = vals.get('recargo', 0.0)
 
-        
+
+class Descuento:
+
+    def __init__(self, vals):
+        self.descripcion = vals.get('descripcion', '')
+        self.monto = round(vals.get('monto', 0.0), 2)
+        self.indicadorFacturacion = vals.get('indicadorFacturacion', '')
+
 class Efactura(Documento):
     def __init__(self, vals):
         super(Efactura, self).__init__(vals)
