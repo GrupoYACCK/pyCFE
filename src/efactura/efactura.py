@@ -198,7 +198,7 @@ class CFESimple():
                 tag = etree.QName(self._ns0, 'TpoMovDR')
                 etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = 'D'
                 tag = etree.QName(self._ns0, 'GlosaDR')
-                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = descuento.descripcion
+                etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = descuento.descripcion[:50]
                 tag = etree.QName(self._ns0, 'ValorDR')
                 etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = str(descuento.monto)
                 tag = etree.QName(self._ns0, 'IndFactDR')

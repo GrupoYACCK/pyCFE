@@ -1,10 +1,13 @@
 from pysimplesoap.client import SoapClient, SoapFault, SimpleXMLElement
 from lxml import etree
 import sys
+
 if sys.version > '3':
     unicode = str
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class Client(object):
 
@@ -12,9 +15,9 @@ class Client(object):
         self._location = url
         self._url = "%s?wsdl" % url
         self._namespace = url
-        self._soapaction= "%s/RECIBESOBREVENTA" % url
+        self._soapaction = "%s/RECIBESOBREVENTA" % url
         self._method = "RECIBESOBREVENTA"
-        self._soapenv="""<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://turobot.com/ws/ws_efacturainfo_ventas.php">
+        self._soapenv = """<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://turobot.com/ws/ws_efacturainfo_ventas.php">
    <soapenv:Header/>
    <soapenv:Body>
       <ws:RECIBESOBREVENTA soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -28,25 +31,25 @@ class Client(object):
       </ws:RECIBESOBREVENTA>
    </soapenv:Body>
 </soapenv:Envelope>"""
-        self._exceptions=True
+        self._exceptions = True
         self._connect()
         self._soap_namespaces = dict(
-                                    soap11='http://schemas.xmlsoap.org/soap/envelope/',
-                                    soap='http://schemas.xmlsoap.org/soap/envelope/',
-                                    soapenv='http://schemas.xmlsoap.org/soap/envelope/',
-                                    soap12='http://www.w3.org/2003/05/soap-env',
-                                    soap12env="http://www.w3.org/2003/05/soap-envelope"
-                                )
+            soap11='http://schemas.xmlsoap.org/soap/envelope/',
+            soap='http://schemas.xmlsoap.org/soap/envelope/',
+            soapenv='http://schemas.xmlsoap.org/soap/envelope/',
+            soap12='http://www.w3.org/2003/05/soap-env',
+            soap12env="http://www.w3.org/2003/05/soap-envelope"
+        )
 
     def _connect(self):
-        
-        self._client = SoapClient(location=self._location, action= self._soapaction, namespace=self._namespace)
-        
-        #self._client = SOAPProxy(self._url, self._namespace)
+
+        self._client = SoapClient(location=self._location, action=self._soapaction, namespace=self._namespace)
+
+        # self._client = SOAPProxy(self._url, self._namespace)
 
     def _call_ws(self, xml):
         xml_response = self._client.send(self._method, xml)
-        logger.info(str(xml_response,'utf-8'))
+        logger.info(str(xml_response, 'utf-8'))
         response = SimpleXMLElement(xml_response, namespace=self._namespace,
                                     jetty=False)
         if self._exceptions and response("Fault", ns=list(self._soap_namespaces.values()), error=False):
@@ -57,8 +60,8 @@ class Client(object):
                 if self.services is not None:
                     operation = self._client.get_operation(self._method)
                     fault_name = detailXml.children()[0].get_name()
-                    # if fault not defined in WSDL, it could be an axis or other 
-                    # standard type (i.e. "hostname"), try to convert it to string 
+                    # if fault not defined in WSDL, it could be an axis or other
+                    # standard type (i.e. "hostname"), try to convert it to string
                     fault = operation['faults'].get(fault_name) or unicode
                     detail = detailXml.children()[0].unmarshall(fault, strict=False)
                 else:
@@ -66,20 +69,20 @@ class Client(object):
 
             raise SoapFault(unicode(response.faultcode),
                             unicode(response.faultstring),
-                            detail)        
+                            detail)
         return response
 
     def _call_service(self, name, params):
-        
+
         try:
-            xml=self._soapenv %(params.get('usuario'), params.get('clave'), params.get('rutEmisor'),
-                                     params.get('sobre'), params.get('impresion'))
+            xml = self._soapenv % (params.get('usuario'), params.get('clave'), params.get('rutEmisor'),
+                                   params.get('sobre'), params.get('impresion'))
             parser = etree.XMLParser(strip_cdata=False)
             root = etree.fromstring(xml, parser)
-            xml = etree.tostring(root,  pretty_print=True, xml_declaration = True, encoding='utf-8')
-            logger.info(str(xml,'utf-8'))
-            #return True, call(self._url, soapenv, namespace, soapaction = self._soapaction, encoding = "UTF-8")
-            #return True,  self._client.invoke(name, (), params)
+            xml = etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='utf-8')
+            logger.info(str(xml, 'utf-8'))
+            # return True, call(self._url, soapenv, namespace, soapaction = self._soapaction, encoding = "UTF-8")
+            # return True,  self._client.invoke(name, (), params)
             response = self._call_ws(xml)
             res = {}
             res['estado'] = str(response.estado or '')
@@ -95,11 +98,11 @@ class Client(object):
             res['CAEhasta'] = str(response.CAEhasta or '')
             res['CAEvto'] = str(response.CAEvto or '')
             res['URLcode'] = str(response.URLcode or '')
-            
+
             return True, res
-            #service = getattr(self._client, name)
-            #return True, service(**params)
-            #return True, self._client.send("RECIBESOBREVENTA", soapenv)
+            # service = getattr(self._client, name)
+            # return True, service(**params)
+            # return True, self._client.send("RECIBESOBREVENTA", soapenv)
         except SoapFault as e:
             return False, {'faultcode': e.faultcode, 'faultstring': e.faultstring}
         except Exception:
@@ -107,6 +110,5 @@ class Client(object):
 
     def recibo_venta(self, params):
         return self._call_service('RECIBESOBREVENTA', params)
-
 
 
