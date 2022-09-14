@@ -45,6 +45,10 @@ class Documento:
         self.tipoCFE = vals.get("tipoCFE","")
         self.serie = vals.get("serie","")
         self.numero = vals.get("numero","")
+
+        self.clauVenta = vals.get("clauVenta", "")
+        self.ViaTransp = vals.get("ViaTransp", "")
+        self.modVenta = vals.get("modVenta", "")
         
         self.fecEmision = vals.get('fecEmision', '')
         self.fecVencimiento = vals.get('fecVencimiento', '')

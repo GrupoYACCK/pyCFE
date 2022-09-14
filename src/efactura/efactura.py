@@ -25,7 +25,7 @@ class SobreFactura():
         cfe=etree.SubElement(self._root, "CFESimple")
         #parser = etree.XMLParser(remove_blank_text=True, ns_clean=False)
         xml= CFESimple().getInvoice(sobre.cfe) #etree.fromstring(sobre.cfe, parser=parser, base_url=None)
-        
+        #xml = etree.tostring(xml, pretty_print=True, xml_declaration = True, encoding='utf-8')
         cfe.append(xml)
         etree.SubElement(cfe, "Anulado").text="0"
         etree.SubElement(cfe, "Addenda").text= sobre.adenda or  ""
@@ -58,7 +58,14 @@ class CFESimple():
         if documento.fecVencimiento:
             tag = etree.QName(self._ns0, 'FchVenc')
             etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text=documento.fecVencimiento
-    
+        if documento.tipoCFE in ['121', '122', '123', '124']:
+            tag = etree.QName(self._ns0, 'ClauVenta')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.clauVenta
+            tag = etree.QName(self._ns0, 'ModVenta')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.ViaTransp
+            tag = etree.QName(self._ns0, 'ViaTransp')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.modVenta
+
     def _getCompany(self, emisor, documento):
         empresa = documento.emisor
         tag = etree.QName(self._ns0, 'RUCEmisor')
@@ -100,35 +107,49 @@ class CFESimple():
         etree.SubElement(receptor, tag.text, nsmap={'ns0':tag.namespace}).text=adquirente.ciudad or ''
         tag = etree.QName(self._ns0, 'DeptoRecep')
         etree.SubElement(receptor, tag.text, nsmap={'ns0':tag.namespace}).text=adquirente.departamento or ''
+        if documento.tipoCFE in ['121', '122', '123']:
+            tag = etree.QName(self._ns0, 'PaisRecep')
+            etree.SubElement(receptor, tag.text, nsmap={'ns0': tag.namespace}).text = adquirente.nomPais
 
     def _getTotal(self, totales, documento):
         tag = etree.QName(self._ns0, 'TpoMoneda')
         etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=documento.moneda
-        #if documento.moneda!="UYU":
-        #    tag = etree.QName(self._ns0, 'TpoCambio')
-        #    etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=str(documento.tasaCambio)
-        tag = etree.QName(self._ns0, 'MntNoGrv')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNoGrv)
-        tag = etree.QName(self._ns0, 'MntNetoIVATasaMin')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNetoIVATasaMin)
-        tag = etree.QName(self._ns0, 'MntNetoIVATasaBasica')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNetoIVATasaBasica) 
-        tag = etree.QName(self._ns0, 'IVATasaMin')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.ivaTasaMin)
-        tag = etree.QName(self._ns0, 'IVATasaBasica')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.ivaTasaBasica)
-        tag = etree.QName(self._ns0, 'MntIVATasaMin')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntIVATasaMin)
-        tag = etree.QName(self._ns0, 'MntIVATasaBasica')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntIVATasaBasica)
-        tag = etree.QName(self._ns0, 'MntTotal')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntTotal)
-        tag = etree.QName(self._ns0, 'CantLinDet')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.cantLinDet)
-        tag = etree.QName(self._ns0, 'MontoNF')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=str(documento.montoNF)
-        tag = etree.QName(self._ns0, 'MntPagar')
-        etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=str(documento.mntPagar)
+        if documento.tipoCFE in ['121', '122', '123']:
+            tag = etree.QName(self._ns0, 'TpoCambio')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.tasaCambio)
+            tag = etree.QName(self._ns0, 'MntExpoyAsim')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.mntTotal)
+            tag = etree.QName(self._ns0, 'MntTotal')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.mntTotal)
+            tag = etree.QName(self._ns0, 'CantLinDet')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.cantLinDet)
+            tag = etree.QName(self._ns0, 'MontoNF')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = '0.0'
+            tag = etree.QName(self._ns0, 'MntPagar')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.mntPagar)
+        else:
+            tag = etree.QName(self._ns0, 'MntNoGrv')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNoGrv)
+            tag = etree.QName(self._ns0, 'MntNetoIVATasaMin')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNetoIVATasaMin)
+            tag = etree.QName(self._ns0, 'MntNetoIVATasaBasica')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNetoIVATasaBasica)
+            tag = etree.QName(self._ns0, 'IVATasaMin')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.ivaTasaMin)
+            tag = etree.QName(self._ns0, 'IVATasaBasica')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.ivaTasaBasica)
+            tag = etree.QName(self._ns0, 'MntIVATasaMin')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntIVATasaMin)
+            tag = etree.QName(self._ns0, 'MntIVATasaBasica')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntIVATasaBasica)
+            tag = etree.QName(self._ns0, 'MntTotal')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntTotal)
+            tag = etree.QName(self._ns0, 'CantLinDet')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.cantLinDet)
+            tag = etree.QName(self._ns0, 'MontoNF')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=str(documento.montoNF)
+            tag = etree.QName(self._ns0, 'MntPagar')
+            etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text=str(documento.mntPagar)
         
     def _getLines(self, detalle, line, line_number):
         tag = etree.QName(self._ns0, 'Item')
@@ -212,6 +233,9 @@ class CFESimple():
         if documento.tipoCFE in ['101', '102', '103', '201', '202', '203']:
             tag = etree.QName(self._ns0, 'eTck')
             etck=etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
+        if documento.tipoCFE in ['121', '122', '123']:
+            tag = etree.QName(self._ns0, 'eFact_Exp')
+            etck = etree.SubElement(self._root, tag.text, nsmap={'ns0': tag.namespace})
         else:
             tag = etree.QName(self._ns0, 'eFact')
             etck=etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
