@@ -47,7 +47,7 @@ class Documento:
         self.numero = vals.get("numero","")
 
         self.clauVenta = vals.get("clauVenta", "")
-        self.ViaTransp = vals.get("ViaTransp", "")
+        self.viaTransp = vals.get("viaTransp", "")
         self.modVenta = vals.get("modVenta", "")
         
         self.fecEmision = vals.get('fecEmision', '')

@@ -62,9 +62,9 @@ class CFESimple():
             tag = etree.QName(self._ns0, 'ClauVenta')
             etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.clauVenta
             tag = etree.QName(self._ns0, 'ModVenta')
-            etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.ViaTransp
-            tag = etree.QName(self._ns0, 'ViaTransp')
             etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.modVenta
+            tag = etree.QName(self._ns0, 'ViaTransp')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0': tag.namespace}).text = documento.viaTransp
 
     def _getCompany(self, emisor, documento):
         empresa = documento.emisor
