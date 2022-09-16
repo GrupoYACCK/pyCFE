@@ -269,7 +269,7 @@ class CFESimple():
             self._getLines(detalle, line, i)
 
         self._getDescuento(documento, etck)
-        if documento.tipoCFE in ['102', '103', '112', '113']:
+        if documento.tipoCFE in ['102', '103', '112', '113', '122', '123']:
             self._getRef(documento, etck)
 
         tag = etree.QName(self._ns0, 'DigestValue')
