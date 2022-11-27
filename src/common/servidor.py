@@ -2,7 +2,8 @@
 class Servidor:
     
     def __init__(self):
-        self.servidores = {'efactura':'Efactura'}
+        self.servidores = {'efactura':'Efactura',
+                           'biller':'Biller'}
     
     def getServidores(self):
         res = []
@@ -15,4 +16,5 @@ class Servidor:
         self.usuario = vals.get('usuario', '')
         self.clave = vals.get('clave', '')
         self.codigo = vals.get('codigo', '')
+        self.token = vals.get('token', '')
         return self

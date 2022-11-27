@@ -19,6 +19,7 @@ class Empresa:
         self.departamento = (vals.get('departamento', '') or '').strip()
         self.codPais = (vals.get('codPais', '') or '').strip()
         self.nomPais = (vals.get('nomPais', '') or '').strip()
+        self.nombreFantasia = (vals.get('nombreFantasia', '') or '').strip()
         sucursales = set()
         for suc in vals.get('sucursal', []):
             sucursales.add(Sucursal(suc))

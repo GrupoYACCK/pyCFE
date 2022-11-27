@@ -2,6 +2,7 @@ from .empresa import Adquirente, Emisor
 from .servidor import Servidor
 from pyCFE.efactura.cliente import Client
 from pyCFE.efactura.efactura import SobreFactura
+from pyCFE.biller.biller import Biller
 
 class Sobre:
     def __init__(self, vals):
@@ -12,7 +13,7 @@ class Sobre:
         self.adenda = vals.get('adenda', '') or ''
         self.cfe = Documento(vals.get('documento', {}))
         self.servidor = Servidor().setServidor(vals.get('servidor', {}))
-        
+        self.cfe.servidor = self.servidor
         self.impresion = vals.get('impresion', '')  or ''
         
     def enviarCFE(self):
@@ -26,12 +27,28 @@ class Sobre:
                 'impresion':self.impresion}
             estado, respuesta = cliente.recibo_venta(vals)
             return {'estado':estado, 'respuesta':respuesta}
+        elif self.servidor.codigo == 'biller':
+            biller = Biller(self.cfe)
+            return biller.send_einvoice()
+        else:
+            return {}
+    def obtenerPdfCFE(self, biller_id):
+        if self.servidor.codigo == 'biller':
+            biller = Biller(self.cfe)
+            return biller.get_biller_pdf(biller_id)
+        else:
+            return {}
+
+    def obtenerEstadoCFE(self, biller_id):
+        if self.servidor.codigo == 'biller':
+            biller = Biller(self.cfe)
+            return biller.get_biller_invoice(biller_id)
         else:
             return {}
     
 class Documento:
     def __init__(self, vals):
-        self.servidor = Servidor().setServidor(vals.get('servidor', {}))
+        self.servidor = set() #Servidor().setServidor(vals.get('servidor', {}))
         self.emisor = Emisor(vals.get('emisor', {}))
         self.adquirente = Adquirente(vals.get('adquirente', {}))
         
@@ -78,14 +95,14 @@ class Documento:
         self.cantLinDet = vals.get('cantLinDet', 0) or len(items)
         self.montoNF = round(vals.get('montoNF', 0.0),2)
         self.mntPagar= round(vals.get('mntPagar', 0.0),2)
-        
+        self.referenciaGlobal = vals.get("referenciaGlobal", "")
+        self.referencia = vals.get("referencia", "")
         referencias = set()
         for ref in vals.get('referencias', []):
             referencias.add(Referencia(ref))
         self.referencias = referencias
 
-    def enviarCFE(self):
-        raise "No implementado"
+
 
 class Referencia:
     def __init__(self, vals):
@@ -105,7 +122,7 @@ class Items:
         self.unidadMedida = vals.get('unidadMedida', 'N/A')
         self.precioUnitario = round(vals.get('precioUnitario', 0.0), 10)
         self.montoItem = round(vals.get('montoItem', 0.0), 8)
-        
+        self.codigo = vals.get("codigo", '')
         self.codProducto = vals.get('codProducto', '')
         #self.descuentoTipo = vals.get('descuentoTipo', '%')
         self.descuento = vals.get('descuento', 0.0)
