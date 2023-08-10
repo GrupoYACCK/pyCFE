@@ -30,6 +30,7 @@ class Emisor(Empresa):
     
     def __init__(self, vals):
         super(Emisor, self).__init__(vals)
+        self.id = vals.get('id')
             
     
 class Adquirente(Empresa):

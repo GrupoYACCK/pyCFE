@@ -3,7 +3,9 @@ class Servidor:
     
     def __init__(self):
         self.servidores = {'efactura':'Efactura',
-                           'biller':'Biller'}
+                           'biller':'Biller',
+                           'factura_express':'Factura Express',
+                           }
     
     def getServidores(self):
         res = []
@@ -17,4 +19,5 @@ class Servidor:
         self.clave = vals.get('clave', '')
         self.codigo = vals.get('codigo', '')
         self.token = vals.get('token', '')
+        self.id = vals.get('id', '')
         return self
