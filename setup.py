@@ -13,7 +13,7 @@ PACKAGE_DIR = 'src'
 
 setup(
     name=PACKAGE_NAME,
-    version='0.0.11',
+    version='0.0.12',
     author='Alex Cuellar',
     author_email='acuellar@grupoyacck.com',
     maintainer='Alex Cuellar',
@@ -27,7 +27,7 @@ setup(
     url='',
     packages=[PACKAGE_NAME,"%s.common"%PACKAGE_NAME,
               "%s.efactura"%PACKAGE_NAME,
-              "%s.biller"%PACKAGE_NAME],
+              "%s.biller"%PACKAGE_NAME, "%s.facturaexpress"%PACKAGE_NAME],
     package_dir={PACKAGE_NAME: PACKAGE_DIR},
     include_package_data=True,
     install_requires=INSTALL_REQUIRES,
