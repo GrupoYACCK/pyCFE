@@ -45,6 +45,8 @@ class Sobre:
             vals['serie'] = documento.serie
             vals['numero'] = documento.numero
             vals['fechaEmision'] = datetime.strptime(documento.fecEmision, '%Y-%m-%d').strftime('%Y%m%d')
+            if documento.fecVencimiento:
+                vals['FchVenc'] = datetime.strptime(documento.fecVencimiento, '%Y-%m-%d').strftime('%Y%m%d')
             vals['formaPago'] = documento.formaPago
             # FchVenc Falta
             vals['usuario'] = self.servidor.usuario
