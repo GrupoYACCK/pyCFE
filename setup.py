@@ -22,6 +22,7 @@ setup(
         "Facturacion Electronica Uruguaya"
     ),
     long_description=LONG_DESC,
+    long_description_content_type='text/markdown',
     license='GPLv3',
     keywords='pyCFE',
     url='',
