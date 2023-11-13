@@ -79,6 +79,13 @@ class Sobre:
         else:
             return {}
 
+    def verificarEstadoCFE(self, numero_interno, tipo_comprobante=None, serie=None, numero=None):
+        if self.servidor.codigo == 'biller':
+            biller = Biller(self.cfe)
+            return biller.check_biller_invoice(numero_interno, tipo_comprobante, serie, numero)
+        else:
+            return {}
+
 
 class Documento:
     def __init__(self, vals):
@@ -136,6 +143,7 @@ class Documento:
             referencias.add(Referencia(ref))
         self.referencias = referencias
 
+        self.numero_interno = vals.get("numero_interno", "")
 
 class Referencia:
     def __init__(self, vals):

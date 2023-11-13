@@ -63,3 +63,14 @@ class Client(object):
         url = self._url + self._method
         response = requests.get("%s?id=%s" % (url, id), headers=headers)
         return self._get_response(response)
+
+    def check_invoice(self, token, numero_interno, tipo_comprobante, serie, numero):
+        headers = self._get_header(token)
+        self._type = "obtener"
+        self._getApiMethod()
+        url = self._url + self._method
+        if serie and numero and tipo_comprobante:
+            response = requests.get("%s?tipo_comprobante=%s&serie=%s&numero=%s" % (url, tipo_comprobante, serie, numero), headers=headers)
+        else:
+            response = requests.get("%s?numero_interno=%s" % (url, numero_interno), headers=headers)
+        return self._get_response(response)
