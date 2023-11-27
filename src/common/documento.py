@@ -79,10 +79,10 @@ class Sobre:
         else:
             return {}
 
-    def verificarEstadoCFE(self, numero_interno, tipo_comprobante=None, serie=None, numero=None):
+    def verificarEstadoCFE(self, numero_interno, desde=None, tipo_comprobante=None, serie=None, numero=None):
         if self.servidor.codigo == 'biller':
             biller = Biller(self.cfe)
-            return biller.check_biller_invoice(numero_interno, tipo_comprobante, serie, numero)
+            return biller.check_biller_invoice(numero_interno, desde, tipo_comprobante, serie, numero)
         else:
             return {}
 
