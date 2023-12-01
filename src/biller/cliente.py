@@ -73,7 +73,7 @@ class Client(object):
         if numero_interno:
             response = requests.get("%s?numero_interno=%s" % (url, numero_interno), headers=headers)
         elif serie and numero and tipo_comprobante:
-            response = requests.get("obtener?desde=%s&tipo_comprobante=%s&serie=%s&numero=%s" % (url, desde, tipo_comprobante, serie, numero), headers=headers)
+            response = requests.get("%s?desde=%s&tipo_comprobante=%s&serie=%s&numero=%s" % (url, desde, tipo_comprobante, serie, numero), headers=headers)
         if response:
             return self._get_response(response)
         else:
