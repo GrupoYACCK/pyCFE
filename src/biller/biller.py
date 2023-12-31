@@ -152,10 +152,10 @@ class Biller:
         except Exception:
             return {'estado': False, 'respuesta': {'error': 'Error en la consulta a biller'}}
 
-    def check_biller_invoice(self, numero_interno, tipo_comprobante=None, serie=None, numero=None):
+    def check_biller_invoice(self, numero_interno, desde=None, tipo_comprobante=None, serie=None, numero=None):
         try:
             client = Client(self.documento.servidor.url)
-            invoice_data = client.check_invoice(self.documento.servidor.token, numero_interno, tipo_comprobante, serie, numero)
+            invoice_data = client.check_invoice(self.documento.servidor.token, numero_interno, desde, tipo_comprobante, serie, numero)
             if type(invoice_data.get('respuesta'))==list:
                 invoice_data['respuesta'] = invoice_data.get('respuesta')[0]
             return invoice_data or {}
