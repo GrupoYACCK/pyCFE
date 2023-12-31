@@ -21,6 +21,7 @@ class Biller:
         for sucursal in self.documento.emisor.sucursal:
             vals['sucursal'] = sucursal.codigo or "1"
             break
+        vals['numero_interno'] = self.documento.numero_interno
         return vals
 
     def _get_ref(self):
@@ -148,5 +149,15 @@ class Biller:
             client = Client(self.documento.servidor.url)
             invoice_data = client.get_invoice(self.documento.servidor.token, biller_id)
             return len(invoice_data) and {'estado': True, "respuesta": invoice_data[0]} or {}
+        except Exception:
+            return {'estado': False, 'respuesta': {'error': 'Error en la consulta a biller'}}
+
+    def check_biller_invoice(self, numero_interno, tipo_comprobante=None, serie=None, numero=None):
+        try:
+            client = Client(self.documento.servidor.url)
+            invoice_data = client.check_invoice(self.documento.servidor.token, numero_interno, tipo_comprobante, serie, numero)
+            if type(invoice_data.get('respuesta'))==list:
+                invoice_data['respuesta'] = invoice_data.get('respuesta')[0]
+            return invoice_data or {}
         except Exception:
             return {'estado': False, 'respuesta': {'error': 'Error en la consulta a biller'}}
