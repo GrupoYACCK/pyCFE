@@ -19,7 +19,10 @@ class Biller:
         if self.documento.moneda != "UYU":
             vals['tasa_cambio'] = self.documento.tasaCambio
         if self.documento.tipoCFE not in ['182']:
-            vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
+            if self.documento.tipoCFE not in ['151']:
+                vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
+            else:
+                vals['montos_brutos'] = self.documento.montosBrutos
         for sucursal in self.documento.emisor.sucursal:
             vals['sucursal'] = sucursal.codigo or "1"
             break
@@ -105,7 +108,7 @@ class Biller:
             vals['tasa'] = ret.tasa
             vals['monto_sujeto'] = ret.base
             retencionesPercepciones.append(vals)
-        return {'retenciones_percepciones': retencionesPercepciones}
+        return {'retencionesPercepciones': retencionesPercepciones}
 
     def get_document(self):
         documento = {}
