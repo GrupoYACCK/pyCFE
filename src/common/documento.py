@@ -120,7 +120,10 @@ class Documento:
         for item_val in vals.get('items', []):
             items.add(Items(item_val))
         self.items = items
-
+        retencionesPercepciones = set()
+        for ret_per_val in vals.get('retencionesPercepciones', []):
+            retencionesPercepciones.add(RetencionesPercepciones(ret_per_val))
+        self.retencionesPercepciones = retencionesPercepciones
         descuentos = set()
         for desc_val in vals.get('descuentos', []):
             descuentos.add(Descuento(desc_val))
@@ -171,6 +174,13 @@ class Items:
         self.recargoMonto = vals.get('recargoMonto', 0.0)
         self.recargo = vals.get('recargo', 0.0)
 
+class RetencionesPercepciones:
+
+    def __init__(self, vals):
+        self.codigo = vals.get('codigo', '')
+        self.tasa = vals.get('tasa', 0.0)
+        self.base = round(vals.get('base', 0.0),2)
+        self.monto = round(vals.get('monto', 0.0), 2)
 
 class Descuento:
 

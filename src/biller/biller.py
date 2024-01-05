@@ -9,15 +9,17 @@ class Biller:
     def _get_voucher(self):
         vals = {}
         vals['tipo_comprobante'] = int(self.documento.tipoCFE)
-        if self.documento.fecVencimiento:
-            vals['fecha_vencimiento'] = self.documento.fecVencimiento
-        vals['forma_pago'] = self.documento.formaPago
-        vals['fecha_emision'] = self.documento.fecEmision
+        if self.documento.tipoCFE not in ['182']:
+            if self.documento.fecVencimiento:
+                vals['fecha_vencimiento'] = self.documento.fecVencimiento
+            vals['forma_pago'] = self.documento.formaPago
+            vals['fecha_emision'] = self.documento.fecEmision
 
         vals['moneda'] = self.documento.moneda
         if self.documento.moneda != "UYU":
             vals['tasa_cambio'] = self.documento.tasaCambio
-        vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
+        if self.documento.tipoCFE not in ['182']:
+            vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
         for sucursal in self.documento.emisor.sucursal:
             vals['sucursal'] = sucursal.codigo or "1"
             break
@@ -95,11 +97,24 @@ class Biller:
             lines.append(vals)
         return {'items': lines}
 
+    def _get_retencionesPercepciones(self):
+        retencionesPercepciones = []
+        for ret in self.documento.retencionesPercepciones:
+            vals = {}
+            vals['codigo'] = ret.codigo
+            vals['tasa'] = ret.tasa
+            vals['monto_sujeto'] = ret.base
+            retencionesPercepciones.append(vals)
+        return {'retenciones_percepciones': retencionesPercepciones}
+
     def get_document(self):
         documento = {}
         documento.update(self._get_voucher())
         documento.update(self._get_partner())
-        documento.update(self._get_lines())
+        if self.documento.items:
+            documento.update(self._get_lines())
+        if self.documento.retencionesPercepciones and self.documento.tipoCFE in ['182']:
+            documento.update(self._get_retencionesPercepciones())
         if self.documento.tipoCFE in ['102', '103', '112', '113']:
             documento.update(self._get_ref())
         if self.documento.adenda:
