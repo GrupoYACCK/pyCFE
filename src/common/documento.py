@@ -147,6 +147,7 @@ class Documento:
         self.referencias = referencias
 
         self.numero_interno = vals.get("numero_interno", "")
+        self.numero_orden = vals.get("numero_orden", "")
 
 class Referencia:
     def __init__(self, vals):
