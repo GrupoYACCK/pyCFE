@@ -233,7 +233,7 @@ class CFESimple():
         if documento.tipoCFE in ['101', '102', '103', '201', '202', '203']:
             tag = etree.QName(self._ns0, 'eTck')
             etck=etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
-        if documento.tipoCFE in ['121', '122', '123']:
+        elif documento.tipoCFE in ['121', '122', '123']:
             tag = etree.QName(self._ns0, 'eFact_Exp')
             etck = etree.SubElement(self._root, tag.text, nsmap={'ns0': tag.namespace})
         else:
