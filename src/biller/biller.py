@@ -19,7 +19,7 @@ class Biller:
         if self.documento.moneda != "UYU":
             vals['tasa_cambio'] = self.documento.tasaCambio
         if self.documento.tipoCFE not in ['182']:
-            if self.documento.tipoCFE not in ['151']:
+            if self.documento.tipoCFE not in ['151', '152', '153']:
                 vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
             else:
                 vals['montos_brutos'] = self.documento.montosBrutos
