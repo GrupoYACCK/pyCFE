@@ -120,7 +120,7 @@ class Biller:
             documento.update(self._get_lines())
         if self.documento.retencionesPercepciones and self.documento.tipoCFE in ['182']:
             documento.update(self._get_retencionesPercepciones())
-        if self.documento.tipoCFE in ['102', '103', '112', '113']:
+        if self.documento.tipoCFE in ['102', '103', '112', '113', '152', '153']:
             documento.update(self._get_ref())
         if self.documento.adenda:
             documento['adenda'] = self.documento.adenda
