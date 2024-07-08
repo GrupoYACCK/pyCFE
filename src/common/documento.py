@@ -182,6 +182,7 @@ class RetencionesPercepciones:
         self.tasa = vals.get('tasa', 0.0)
         self.base = round(vals.get('base', 0.0),2)
         self.monto = round(vals.get('monto', 0.0), 2)
+        self.indicadorFacturacion = vals.get('indicadorFacturacion', '')
 
 class Descuento:
 

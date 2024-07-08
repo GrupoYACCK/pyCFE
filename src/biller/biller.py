@@ -109,6 +109,8 @@ class Biller:
             vals['codigo'] = ret.codigo
             vals['tasa'] = ret.tasa
             vals['monto_sujeto'] = ret.base
+            if ret.indicadorFacturacion:
+                vals['indicador_facturacion'] = ret.indicadorFacturacion
             retencionesPercepciones.append(vals)
         return {'retencionesPercepciones': retencionesPercepciones}
 
