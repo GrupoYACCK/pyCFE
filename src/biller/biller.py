@@ -13,8 +13,7 @@ class Biller:
             if self.documento.fecVencimiento:
                 vals['fecha_vencimiento'] = self.documento.fecVencimiento
             vals['forma_pago'] = self.documento.formaPago
-            vals['fecha_emision'] = self.documento.fecEmision
-
+        vals['fecha_emision'] = self.documento.fecEmision
         vals['moneda'] = self.documento.moneda
         if self.documento.moneda != "UYU":
             vals['tasa_cambio'] = self.documento.tasaCambio
