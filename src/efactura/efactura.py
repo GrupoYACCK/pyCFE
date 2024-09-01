@@ -52,8 +52,9 @@ class CFESimple():
             tag = etree.QName(self._ns0, 'MntBruto')
             etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.montosBrutos # '1'
         #Ojo preguntar
-        tag = etree.QName(self._ns0, 'FmaPago')
-        etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.formaPago # "1"
+        if documento.tipoCFE not in ['182']:
+            tag = etree.QName(self._ns0, 'FmaPago')
+            etree.SubElement(id_doc, tag.text, nsmap={'ns0':tag.namespace}).text= documento.formaPago # "1"
         
         if documento.fecVencimiento:
             tag = etree.QName(self._ns0, 'FchVenc')
@@ -127,6 +128,34 @@ class CFESimple():
             etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = '0.0'
             tag = etree.QName(self._ns0, 'MntPagar')
             etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.mntPagar)
+        elif documento.tipoCFE in ['182']:
+            if documento.moneda != 'UYU':
+                tag = etree.QName(self._ns0, 'TpoCambio')
+                etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(documento.tasaCambio)
+            ret_perc_vals = {}
+            cred_fisc = 0.0
+            mnt_retenido = 0.0
+            for retencionesPercepcion in documento.retencionesPercepciones:
+                sign = retencionesPercepcion.indicadorFacturacion == '9' and -1 or 1
+                monto = sign * retencionesPercepcion.monto
+                ret_perc_vals[retencionesPercepcion.codigo] = monto
+                if retencionesPercepcion.codigo[:4] in '2181':
+                    cred_fisc+= monto
+                mnt_retenido+= monto
+
+            tag = etree.QName(self._ns0, 'MntTotRetenido')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(mnt_retenido - cred_fisc)
+            tag = etree.QName(self._ns0, 'MntTotCredFisc')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(cred_fisc)
+            tag = etree.QName(self._ns0, 'CantLinDet')
+            etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace}).text = str(len(documento.retencionesPercepciones))
+            for codigo, monto in ret_perc_vals.items():
+                tag = etree.QName(self._ns0, 'RetencPercep')
+                ret_perc = etree.SubElement(totales, tag.text, nsmap={'ns0': tag.namespace})
+                tag = etree.QName(self._ns0, 'CodRet')
+                etree.SubElement(ret_perc, tag.text, nsmap={'ns0': tag.namespace}).text = codigo
+                tag = etree.QName(self._ns0, 'ValRetPerc')
+                etree.SubElement(ret_perc, tag.text, nsmap={'ns0': tag.namespace}).text = str(monto)
         else:
             tag = etree.QName(self._ns0, 'MntNoGrv')
             etree.SubElement(totales, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.mntNoGrv)
@@ -154,35 +183,59 @@ class CFESimple():
     def _getLines(self, detalle, line, line_number):
         tag = etree.QName(self._ns0, 'Item')
         item = etree.SubElement(detalle, tag.text, nsmap={'ns0':tag.namespace})
-        
+
         tag = etree.QName(self._ns0, 'NroLinDet')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=str(line_number)
-        
+
         tag = etree.QName(self._ns0, 'IndFact')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=line.indicadorFacturacion
-        
+
         tag = etree.QName(self._ns0, 'NomItem')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=line.descripcion
-        
+
         tag = etree.QName(self._ns0, 'Cantidad')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=str(round(line.cantidad,3))
-        
+
         tag = etree.QName(self._ns0, 'UniMed')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text=line.unidadMedida or 'N/A'
-        
+
         tag = etree.QName(self._ns0, 'PrecioUnitario')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.precioUnitario,2))
-        
+
         if line.descuento:
             tag = etree.QName(self._ns0, 'DescuentoPct')
             etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.descuento,3))
         if line.descuentoMonto:
             tag = etree.QName(self._ns0, 'DescuentoMonto')
             etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(round(line.descuentoMonto,2))
-        
+
         tag = etree.QName(self._ns0, 'MontoItem')
         etree.SubElement(item, tag.text, nsmap={'ns0':tag.namespace}).text= str(line.montoItem)
-    
+
+    def _getRetencPercepLines(self, detalle, line, line_number):
+        tag = etree.QName(self._ns0, 'Item')
+        item = etree.SubElement(detalle, tag.text, nsmap={'ns0': tag.namespace})
+
+        tag = etree.QName(self._ns0, 'NroLinDet')
+        etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = str(line_number)
+        if line.indicadorFacturacion:
+            tag = etree.QName(self._ns0, 'IndFact')
+            etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace}).text = str(line.indicadorFacturacion)
+        tag = etree.QName(self._ns0, 'RetencPercep')
+        retenc_precep = etree.SubElement(item, tag.text, nsmap={'ns0': tag.namespace})
+        tag = etree.QName(self._ns0, 'CodRet')
+        etree.SubElement(retenc_precep, tag.text, nsmap={'ns0': tag.namespace}).text = str(line.codigo)
+
+        tag = etree.QName(self._ns0, 'Tasa')
+        etree.SubElement(retenc_precep, tag.text, nsmap={'ns0': tag.namespace}).text = str(line.tasa)
+
+        tag = etree.QName(self._ns0, 'MntSujetoaRet')
+        etree.SubElement(retenc_precep, tag.text, nsmap={'ns0': tag.namespace}).text = str(line.base)
+
+        tag = etree.QName(self._ns0, 'ValRetPerc')
+        etree.SubElement(retenc_precep, tag.text, nsmap={'ns0': tag.namespace}).text = str(line.monto)
+
+
     def _getRef(self, documento, etck):
         tag = etree.QName(self._ns0, 'Referencia')
         referenciam = etree.SubElement(etck, tag.text, nsmap={'ns0':tag.namespace})
@@ -236,6 +289,9 @@ class CFESimple():
         elif documento.tipoCFE in ['121', '122', '123']:
             tag = etree.QName(self._ns0, 'eFact_Exp')
             etck = etree.SubElement(self._root, tag.text, nsmap={'ns0': tag.namespace})
+        elif documento.tipoCFE in ['182']:
+            tag = etree.QName(self._ns0, 'eResg')
+            etck = etree.SubElement(self._root, tag.text, nsmap={'ns0': tag.namespace})
         else:
             tag = etree.QName(self._ns0, 'eFact')
             etck=etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
@@ -264,14 +320,20 @@ class CFESimple():
         tag = etree.QName(self._ns0, 'Detalle')
         detalle = etree.SubElement(etck, tag.text, nsmap={'ns0':tag.namespace})
         i=0
-        for line in documento.items:
-            i+=1
-            self._getLines(detalle, line, i)
+        if documento.tipoCFE in ['182']:
+            for line in documento.retencionesPercepciones:
+                i+=1
+                self._getRetencPercepLines(detalle, line, i)
+        else:
+            for line in documento.items:
+                i+=1
+                self._getLines(detalle, line, i)
 
         self._getDescuento(documento, etck)
         if documento.tipoCFE in ['102', '103', '112', '113', '122', '123']:
             self._getRef(documento, etck)
-
+        elif documento.tipoCFE in ['182'] and documento.referencias:
+            self._getRef(documento, etck)
         tag = etree.QName(self._ns0, 'DigestValue')
         etree.SubElement(self._root, tag.text, nsmap={'ns0':tag.namespace})
         
