@@ -9,15 +9,18 @@ class Biller:
     def _get_voucher(self):
         vals = {}
         vals['tipo_comprobante'] = int(self.documento.tipoCFE)
-        if self.documento.tipoCFE not in ['182']:
+        if self.documento.tipoCFE == '181':
+            vals['tipo_traslado'] = self.documento.tipo_traslado
+        if self.documento.tipoCFE not in ['182', '181']:
             if self.documento.fecVencimiento:
                 vals['fecha_vencimiento'] = self.documento.fecVencimiento
             vals['forma_pago'] = self.documento.formaPago
         vals['fecha_emision'] = self.documento.fecEmision
-        vals['moneda'] = self.documento.moneda
+        if self.documento.moneda:
+            vals['moneda'] = self.documento.moneda
         if self.documento.moneda != "UYU":
             vals['tasa_cambio'] = self.documento.tasaCambio
-        if self.documento.tipoCFE not in ['182']:
+        if self.documento.tipoCFE not in ['182', '181']:
             if self.documento.tipoCFE not in ['151', '152', '153']:
                 vals['montos_brutos'] = self.documento.montosBrutos == '1' and True or False
             else:
@@ -101,6 +104,17 @@ class Biller:
             lines.append(vals)
         return {'items': lines}
 
+    def _get_eremito_items(self):
+        lines = []
+        for line in self.documento.items:
+            vals = {}
+            vals['cantidad'] = round(line.cantidad, 3)
+            if line.codigo:
+                vals['codigo'] = line.codigo
+            vals['concepto'] = line.descripcion[:80]
+            lines.append(vals)
+        return {'items': lines}
+
     def _get_retencionesPercepciones(self):
         retencionesPercepciones = []
         for ret in self.documento.retencionesPercepciones:
@@ -118,7 +132,10 @@ class Biller:
         documento.update(self._get_voucher())
         documento.update(self._get_partner())
         if self.documento.items:
-            documento.update(self._get_lines())
+            if self.documento.tipoCFE == '181':
+                documento.update(self._get_eremito_items())
+            else:
+                documento.update(self._get_lines())
         if self.documento.retencionesPercepciones and self.documento.tipoCFE in ['182']:
             documento.update(self._get_retencionesPercepciones())
         if self.documento.tipoCFE in ['102', '103', '112', '113', '152', '153', '182']:

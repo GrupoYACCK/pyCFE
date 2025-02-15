@@ -145,6 +145,7 @@ class Documento:
         for ref in vals.get('referencias', []):
             referencias.add(Referencia(ref))
         self.referencias = referencias
+        self.tipo_traslado = vals.get("tipo_traslado", "")
 
         self.numero_interno = vals.get("numero_interno", "")
         self.numero_orden = vals.get("numero_orden", "")
