@@ -2,6 +2,9 @@ from pysimplesoap.client import SoapClient, SoapFault, SimpleXMLElement
 from lxml import etree
 import sys
 
+from zeep import Client as ZeepClient, Settings
+from zeep.transports import Transport
+
 if sys.version > '3':
     unicode = str
 import logging
@@ -111,4 +114,37 @@ class Client(object):
     def recibo_venta(self, params):
         return self._call_service('RECIBESOBREVENTA', params)
 
+    def compras_cfes(self, params, servidor):
+        def process_xml(str_xml):
+            xml = etree.fromstring(str_xml.encode('utf-8'), parser=etree.XMLParser(strip_cdata=False))
+            res = []
+            for invoice in xml.findall('cabezal'):
+                vals = {}
+                vals['tipo'] = invoice.find('tipo').text
+                vals['serie'] = invoice.find('serie').text
+                vals['num'] = invoice.find('num').text
+                vals['pago'] = invoice.find('pago').text
+                vals['fecha'] = invoice.find('fecha').text
+                vals['vto'] = invoice.find('vto').text
+                vals['rutEmisor'] = invoice.find('rutEmisor').text
+                vals['moneda'] = invoice.find('moneda').text
+                vals['TC'] = invoice.find('TC').text
+                vals['bruto'] = invoice.find('bruto').text
+                vals['iva'] = invoice.find('iva').text
+                res.append(vals)
+            return res
+
+        settings = Settings(strict=False)
+        transport = Transport()
+        client = ZeepClient(servidor.url, transport=transport, settings=settings)
+        params['usuario'] = servidor.usuario
+        params['clave'] = servidor.clave
+        response = client.service.compras_CFEs(**params)
+        res = []
+        try:
+            xml = response.informeXML
+            res = process_xml(xml)
+        except Exception:
+            res = []
+        return res
 

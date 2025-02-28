@@ -7,13 +7,13 @@ if os.path.exists(README_PATH):
     with open(README_PATH) as readme:
         LONG_DESC = readme.read()
 
-INSTALL_REQUIRES = ['lxml','pysimplesoap','requests']
+INSTALL_REQUIRES = ['lxml','pysimplesoap','requests', 'zeep']
 PACKAGE_NAME = 'pyCFE'
 PACKAGE_DIR = 'src'
 
 setup(
     name=PACKAGE_NAME,
-    version='0.1.0',
+    version='0.2.0',
     author='Alex Cuellar',
     author_email='acuellar@grupoyacck.com',
     maintainer='Alex Cuellar',

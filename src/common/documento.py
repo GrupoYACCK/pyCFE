@@ -86,6 +86,11 @@ class Sobre:
         else:
             return {}
 
+    def compras_cfes(self, params):
+        if self.servidor.codigo != 'efactura':
+            raise TypeError("El servidor no es de tipo efactura")
+        cliente = Client(self.servidor.url)
+        return cliente.compras_cfes(params, self.servidor)
 
 class Documento:
     def __init__(self, vals):
