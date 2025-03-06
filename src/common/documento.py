@@ -86,11 +86,20 @@ class Sobre:
         else:
             return {}
 
-    def compras_cfes(self, params):
-        if self.servidor.codigo != 'efactura':
+    def compras_cfes(self, fecha_desde, fecha_hasta, rut_emisor = None):
+        if self.servidor.codigo not in ['efactura', 'biller']:
             raise TypeError("El servidor no es de tipo efactura")
-        cliente = Client(self.servidor.url)
-        return cliente.compras_cfes(params, self.servidor)
+        if self.servidor.codigo in ['efactura']:
+            cliente = Client(self.servidor.url)
+            params = {
+                'fechadesde': fecha_desde,
+                'fechahasta': fecha_hasta,
+                'rutEmisor': rut_emisor,
+            }
+            return cliente.compras_cfes(params, self.servidor)
+        elif self.servidor.codigo in ['biller']:
+            biller = Biller(self.cfe)
+            return biller.get_comprobantes_recibidos(fecha_desde, fecha_hasta)
 
 class Documento:
     def __init__(self, vals):

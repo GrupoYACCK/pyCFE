@@ -1,4 +1,6 @@
 import logging
+from wsgiref import headers
+
 import requests
 log = logging.getLogger(__name__)
 
@@ -78,3 +80,18 @@ class Client(object):
             return self._get_response(response)
         else:
             return {}
+
+    def get_comprobantes_recibidos(self, fecha_desde, fecha_hasta):
+        headers = self._get_header(self._token)
+        self._type = 'recibidos'
+        self._getApiMethod()
+        url = self._url + self._method
+        params = {
+            'fecha_desde': fecha_desde,
+            'fecha_hasta': fecha_hasta
+        }
+        response = requests.get(url, params=params, headers=headers)
+        if response:
+            return self._get_response(response)
+        else:
+            return []

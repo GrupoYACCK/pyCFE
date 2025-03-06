@@ -122,21 +122,21 @@ class Client(object):
                 vals = {}
                 vals['tipo'] = invoice.find('tipo').text
                 vals['serie'] = invoice.find('serie').text
-                vals['num'] = invoice.find('num').text
+                vals['numero'] = invoice.find('num').text
                 vals['pago'] = invoice.find('pago').text
                 vals['fecha'] = invoice.find('fecha').text
-                vals['vto'] = invoice.find('vto').text
-                vals['rutEmisor'] = invoice.find('rutEmisor').text
+                vals['fecha_vencimiento'] = invoice.find('vto').text == '0000-00-00' and '' or invoice.find('vto').text
+                vals['rut_emisor'] = invoice.find('rutEmisor').text
                 vals['moneda'] = invoice.find('moneda').text
-                vals['TC'] = invoice.find('TC').text
-                vals['bruto'] = invoice.find('bruto').text
-                vals['iva'] = invoice.find('iva').text
+                vals['tipo_cambio'] = invoice.find('TC').text
+                vals['total_neto'] = invoice.find('bruto').text
+                vals['total_iva'] = invoice.find('iva').text
                 res.append(vals)
             return res
 
         settings = Settings(strict=False)
         transport = Transport()
-        client = ZeepClient(servidor.url, transport=transport, settings=settings)
+        client = ZeepClient(servidor.url.replace('ws/ws_efacturainfo_ventas.php?wsdl', 'ws/ws_efacturainfo_consultas.php?wsdl'), transport=transport, settings=settings)
         params['usuario'] = servidor.usuario
         params['clave'] = servidor.clave
         response = client.service.compras_CFEs(**params)

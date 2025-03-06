@@ -202,3 +202,10 @@ class Biller:
             return invoice_data or {}
         except Exception:
             return {'estado': False, 'respuesta': {'error': 'Error en la consulta a biller'}}
+
+    def get_comprobantes_recibidos(self, fecha_desde, fecha_hasta):
+        try:
+            client = Client(self.documento.servidor.url, self.documento.servidor.token)
+            return client.get_comprobantes_recibidos(fecha_desde, fecha_hasta)
+        except Exception:
+            return []
