@@ -83,7 +83,7 @@ class Client(object):
 
     def get_comprobantes_recibidos(self, fecha_desde, fecha_hasta):
         headers = self._get_header(self._token)
-        self._type = 'recibidos'
+        self._type = 'recibidos/obtener'
         self._getApiMethod()
         url = self._url + self._method
         params = {
@@ -92,6 +92,9 @@ class Client(object):
         }
         response = requests.get(url, params=params, headers=headers)
         if response:
-            return self._get_response(response)
+            try:
+                return response.json()
+            except Exception:
+                return []
         else:
             return []
