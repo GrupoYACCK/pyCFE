@@ -163,6 +163,8 @@ class Documento:
 
         self.numero_interno = vals.get("numero_interno", "")
         self.numero_orden = vals.get("numero_orden", "")
+        self.es_recibo = vals.get("es_recibo", False)
+        self.monto = round(vals.get("monto", 0.0),2)
 
 class Referencia:
     def __init__(self, vals):
@@ -171,6 +173,8 @@ class Referencia:
         self.serie = vals.get('serie', '')
         self.numero = vals.get('numero', '')
         self.fechaCFEref = vals.get('fechaCFEref', '')
+        self.padre = vals.get('padre', '')
+        self.total = round(vals.get('total', 0.0),2)
 
 
 class Items:
