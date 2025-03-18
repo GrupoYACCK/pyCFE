@@ -50,6 +50,15 @@ class Client(object):
         response = requests.post(url, json=data, headers=headers)
         return self._get_response(response)
 
+    def send_receipt(self, token, data):
+        headers = self._get_header(token)
+        self._type = 'crear'
+        self._method = "%s/recibos/%s" % (self._version, self._type)
+        url = self._url + self._method
+        log.debug(data)
+        response = requests.post(url, json=data, headers=headers)
+        return self._get_response(response)
+
     def get_pdf(self, token, id):
         headers = self._get_header(token)
         self._type = "pdf"

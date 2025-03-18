@@ -15,7 +15,8 @@ class Biller:
             if self.documento.fecVencimiento:
                 vals['fecha_vencimiento'] = self.documento.fecVencimiento
             vals['forma_pago'] = self.documento.formaPago
-        vals['fecha_emision'] = self.documento.fecEmision
+        if not self.documento.es_recibo:
+            vals['fecha_emision'] = self.documento.fecEmision
         if self.documento.moneda:
             vals['moneda'] = self.documento.moneda
         if self.documento.moneda != "UYU":
@@ -38,14 +39,21 @@ class Biller:
         #vals['referencia_global'] = (self.documento.referencias and self.documento.referencias[0].serie) and 0 or 1
         #vals['razon_referencia'] = self.documento.referencias and self.documento.referencias[0].descripcion or ""
         ref_vals = []
-        vals['referencia_global'] = self.documento.referenciaGlobal
-        vals['razon_referencia'] = self.documento.referencia
-        for ref in self.documento.referencias:
-            val = {}
-            val['tipo'] = ref.tipoDocRef
-            val['serie'] = ref.serie
-            val['numero'] = ref.numero
-            ref_vals.append(val)
+        if not self.documento.es_recibo:
+            vals['referencia_global'] = self.documento.referenciaGlobal
+            vals['razon_referencia'] = self.documento.referencia
+            for ref in self.documento.referencias:
+                val = {}
+                val['tipo'] = ref.tipoDocRef
+                val['serie'] = ref.serie
+                val['numero'] = ref.numero
+                ref_vals.append(val)
+        else:
+            for ref in self.documento.referencias:
+                val = {}
+                val['padre'] = ref.padre
+                val['total'] = ref.total
+                ref_vals.append(val)
         vals['referencias'] = ref_vals
         return vals
 
@@ -134,7 +142,7 @@ class Biller:
         if self.documento.items:
             if self.documento.tipoCFE == '181':
                 documento.update(self._get_eremito_items())
-            else:
+            elif not self.documento.es_recibo:
                 documento.update(self._get_lines())
         if self.documento.retencionesPercepciones and self.documento.tipoCFE in ['182']:
             documento.update(self._get_retencionesPercepciones())
@@ -143,6 +151,10 @@ class Biller:
                 documento.update(self._get_ref())
             elif self.documento.tipoCFE != '182':
                 documento.update(self._get_ref())
+        if self.documento.es_recibo:
+            documento.update(self._get_ref())
+        if self.documento.es_recibo:
+            documento.update(self._get_ref())
         if self.documento.adenda:
             documento['adenda'] = self.documento.adenda
         if self.documento.clauVenta:
@@ -151,12 +163,21 @@ class Biller:
             documento['modalidad_venta'] = self.documento.modVenta
         if self.documento.viaTransp:
             documento['via_transporte'] = self.documento.viaTransp
+        if self.documento.es_recibo:
+            documento['pago'] =  {
+                'fecha': self.documento.fecEmision,
+                'monto': self.documento.monto,
+                'referencia': self.documento.referencia
+            }
         return documento
 
     def send_einvoice(self):
         documento = self.get_document()
         client = Client(self.documento.servidor.url)
-        data = client.send_invoice(self.documento.servidor.token, documento)
+        if self.documento.es_recibo:
+            data = client.send_receipt(self.documento.servidor.token, documento)
+        else:
+            data = client.send_invoice(self.documento.servidor.token, documento)
 
         if data and data.get('estado') and data.get('respuesta') and data.get('respuesta', {}).get('id'):
             try:
