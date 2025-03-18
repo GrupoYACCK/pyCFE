@@ -142,7 +142,7 @@ class Biller:
         if self.documento.items:
             if self.documento.tipoCFE == '181':
                 documento.update(self._get_eremito_items())
-            else:
+            elif not self.documento.es_recibo:
                 documento.update(self._get_lines())
         if self.documento.retencionesPercepciones and self.documento.tipoCFE in ['182']:
             documento.update(self._get_retencionesPercepciones())
@@ -151,6 +151,8 @@ class Biller:
                 documento.update(self._get_ref())
             elif self.documento.tipoCFE != '182':
                 documento.update(self._get_ref())
+        if self.documento.es_recibo:
+            documento.update(self._get_ref())
         if self.documento.es_recibo:
             documento.update(self._get_ref())
         if self.documento.adenda:
@@ -162,7 +164,7 @@ class Biller:
         if self.documento.viaTransp:
             documento['via_transporte'] = self.documento.viaTransp
         if self.documento.es_recibo:
-            documento['monto'] =  {
+            documento['pago'] =  {
                 'fecha': self.documento.fecEmision,
                 'monto': self.documento.monto,
                 'referencia': self.documento.referencia
@@ -172,7 +174,10 @@ class Biller:
     def send_einvoice(self):
         documento = self.get_document()
         client = Client(self.documento.servidor.url)
-        data = client.send_invoice(self.documento.servidor.token, documento)
+        if self.documento.es_recibo:
+            data = client.send_receipt(self.documento.servidor.token, documento)
+        else:
+            data = client.send_invoice(self.documento.servidor.token, documento)
 
         if data and data.get('estado') and data.get('respuesta') and data.get('respuesta', {}).get('id'):
             try:
