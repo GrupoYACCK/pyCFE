@@ -83,12 +83,13 @@ class Client(object):
 
     def get_comprobantes_recibidos(self, fecha_desde, fecha_hasta):
         headers = self._get_header(self._token)
-        self._type = 'recibidos/obtener'
+        self._type = 'obtener'
         self._getApiMethod()
         url = self._url + self._method
         params = {
-            'fecha_desde': fecha_desde,
-            'fecha_hasta': fecha_hasta
+            'desde': "%s 00:00:00" % fecha_desde,
+            'hasta': "%s 23:59:59" % fecha_hasta,
+            'recibidos': '1'
         }
         response = requests.get(url, params=params, headers=headers)
         if response:
