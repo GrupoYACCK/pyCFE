@@ -148,3 +148,39 @@ class Client(object):
             res = []
         return res
 
+    def  get_pdf(self, servidor, *args, **kwargs):
+        def process_response(response):
+            res = {}
+            try:
+                res['error'] = response.glosaError
+            except AttributeError:
+                pass
+            try:
+                res['pdf'] = response.PDFcode
+            except AttributeError:
+                pass
+            return res
+
+        settings = Settings(strict=False)
+        transport = Transport()
+        client = ZeepClient(
+            servidor.url.replace('ws/ws_efacturainfo_ventas.php?wsdl', 'ws/ws_efacturainfo_consultas.php?wsdl'),
+            transport=transport, settings=settings)
+        params = {}
+        params['usuario'] = servidor.usuario
+        params['clave'] = servidor.clave
+        params['rutReceptor'] = kwargs.get('rutReceptor')
+        params['rutEmisor'] = kwargs.get('rutEmisor')
+        params['tipoCFE'] = kwargs.get('tipoCFE')
+        params['serieCFE'] = kwargs.get('serieCFE')
+        params['numeroCFE'] = kwargs.get('numeroCFE')
+        try:
+            response = client.service.IMPRESION_CFE_COMPRA(**params)
+            res = process_response(response)
+            if res.get('error'):
+                return False, res
+            else:
+                return True, res
+        except Exception as e:
+            res = {'error': str(e)}
+        return res

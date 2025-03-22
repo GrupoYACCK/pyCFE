@@ -62,13 +62,17 @@ class Sobre:
         else:
             return {}
 
-    def obtenerPdfCFE(self, ducument_url_id):
+    def obtenerPdfCFE(self, ducument_url_id = False, *args, **kwargs):
         if self.servidor.codigo == 'biller':
             biller = Biller(self.cfe)
             return biller.get_biller_pdf(ducument_url_id)
         elif self.servidor.codigo == 'factura_express':
             cliente = FEClient()
             return cliente.get_pdf(ducument_url_id)
+        elif self.servidor.codigo == 'efactura':
+            cliente = Client(self.servidor.url)
+            estado, respuesta = cliente.get_pdf(self.servidor, *args, **kwargs)
+            return {'estado': estado, 'respuesta': respuesta}
         else:
             return {}
 
