@@ -31,7 +31,7 @@ class Biller:
             break
         vals['numero_interno'] = self.documento.numero_interno
         if self.documento.numero_orden:
-            vals['numero_orden'] = self.documento.numero_orden
+            vals['numero_orden'] = self.documento.numero_orden[:50]
         return vals
 
     def _get_ref(self):
