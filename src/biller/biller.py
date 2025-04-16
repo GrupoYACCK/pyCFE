@@ -3,8 +3,9 @@ from .cliente import Client
 
 class Biller:
 
-    def __init__(self, documento=None):
+    def __init__(self, documento=None, impresion=None):
         self.documento = documento
+        self.impresion = impresion
 
     def _get_voucher(self):
         vals = {}
@@ -189,7 +190,7 @@ class Biller:
 
         if data and data.get('estado') and data.get('respuesta') and data.get('respuesta', {}).get('id'):
             try:
-                pdf_data = client.get_pdf(self.documento.servidor.token, data.get('respuesta', {}).get('id'))
+                pdf_data = client.get_pdf(self.documento.servidor.token, data.get('respuesta', {}).get('id'), self.impresion)
                 if pdf_data.get('estado') and pdf_data.get('respuesta'):
                     data['respuesta']['pdf'] = pdf_data.get('respuesta').get('pdf')
             except Exception:
@@ -200,7 +201,7 @@ class Biller:
 
         try:
             client = Client(self.documento.servidor.url)
-            pdf_data = client.get_pdf(self.documento.servidor.token, biller_id)
+            pdf_data = client.get_pdf(self.documento.servidor.token, biller_id, self.impresion)
             return pdf_data
         except Exception:
             return {'estado': False, 'respuesta': {'error': 'Error en la consulta a biller'}}

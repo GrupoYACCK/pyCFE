@@ -64,7 +64,7 @@ class Sobre:
 
     def obtenerPdfCFE(self, ducument_url_id = False, *args, **kwargs):
         if self.servidor.codigo == 'biller':
-            biller = Biller(self.cfe)
+            biller = Biller(self.cfe, self.impresion)
             return biller.get_biller_pdf(ducument_url_id)
         elif self.servidor.codigo == 'factura_express':
             cliente = FEClient()

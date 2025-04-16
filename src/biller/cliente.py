@@ -59,12 +59,16 @@ class Client(object):
         response = requests.post(url, json=data, headers=headers)
         return self._get_response(response)
 
-    def get_pdf(self, token, id):
+    def get_pdf(self, token, id, template=None):
         headers = self._get_header(token)
         self._type = "pdf"
         self._getApiMethod()
         url = self._url + self._method
-        response = requests.get("%s?id=%s" % (url, id), headers=headers, timeout=30000)
+        if template:
+            payload = {'id': id, 'template':template}
+        else:
+            payload = {'id': id}
+        response = requests.get(url, params=payload, headers=headers, timeout=30000)
         return self._get_response(response)
 
     def get_invoice(self, token, id):
