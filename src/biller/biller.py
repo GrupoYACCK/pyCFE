@@ -136,6 +136,18 @@ class Biller:
             retencionesPercepciones.append(vals)
         return {'retencionesPercepciones': retencionesPercepciones}
 
+    def _get_descuentosRecargos(self):
+        descuentosRecargos = []
+        for descuento in self.documento.descuentos:
+            vals = {}
+            vals['es_recargo'] = False
+            vals['desc_rec_tipo'] = '$'
+            vals['glosa'] = descuento.descripcion[:50]
+            vals['valor'] = descuento.monto
+            vals['indicador_facturacion'] = descuento.indicadorFacturacion
+            descuentosRecargos.append(vals)
+        return {'descuentosRecargos': descuentosRecargos}
+
     def get_document(self):
         documento = {}
         documento.update(self._get_voucher())
@@ -152,6 +164,8 @@ class Biller:
                 documento.update(self._get_ref())
             elif self.documento.tipoCFE != '182':
                 documento.update(self._get_ref())
+        if self.documento.descuentos:
+            documento.update(self._get_descuentosRecargos())
         if self.documento.es_recibo:
             documento.update(self._get_ref())
         if self.documento.es_recibo:
