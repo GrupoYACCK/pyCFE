@@ -245,3 +245,7 @@ class Biller:
             return client.get_comprobantes_recibidos(fecha_desde, fecha_hasta)
         except Exception:
             return []
+
+    def consulta_rut(self, rut):
+        client = Client(self.documento.servidor.url, self.documento.servidor.token)
+        return client.consultar_rut(rut)

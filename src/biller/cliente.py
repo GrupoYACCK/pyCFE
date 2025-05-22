@@ -112,3 +112,17 @@ class Client(object):
                 return []
         else:
             return []
+
+    def consultar_rut(self, rut):
+        headers = self._get_header(self._token)
+        self._type = "empresas"
+        self._method = "%s/dgi/%s/datos-entidad" % (self._version, self._type)
+        url = self._url + self._method
+        params = {
+            'rut': rut,
+        }
+        try:
+            response = requests.get(url, params=params, headers=headers).json()
+        except Exception:
+            response = {}
+        return response

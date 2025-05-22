@@ -184,3 +184,33 @@ class Client(object):
         except Exception as e:
             res = {'error': str(e)}
         return res
+
+    def consulta_rut(self, servidor, rut, *args, **kwargs):
+        def process_response(response):
+            res = {}
+            res['RUT'] = response.RUT
+            res['Denominacion'] = response.Denominacion
+            res['DomicilioFiscal'] = response.DomicilioFiscal
+            res['TipoContribuyente'] = response.TipoContribuyente
+            res['Estado'] = response.Estado
+            res['Emision'] = response.Emision
+            res['Vencimiento'] = response.Vencimiento
+            return res
+
+        settings = Settings(strict=False)
+        transport = Transport()
+        client = ZeepClient(
+            servidor.url.replace('ws/ws_efacturainfo_ventas.php?wsdl', 'ws/ws_efacturainfo_consultas.php?wsdl'),
+            transport=transport, settings=settings)
+        params = {}
+        params['usuario'] = servidor.usuario
+        params['clave'] = servidor.clave
+        params['rutConsulta'] = rut
+        params['rutEmisor'] = kwargs.get('rutEmisor')
+        try:
+            response = client.service.CONSULTA_RUT(**params)
+            res = process_response(response)
+        except Exception as e:
+            res = {'error': str(e)}
+        return res
+

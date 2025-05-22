@@ -76,6 +76,16 @@ class Sobre:
         else:
             return {}
 
+    def consultaRUT(self, rut, *args, **kwargs):
+        if self.servidor.codigo == 'efactura':
+            cliente = Client(self.servidor.url)
+            return cliente.consulta_rut(self.servidor, rut, *args, **kwargs)
+        elif self.servidor.codigo == 'biller':
+            biller = Biller(self.cfe)
+            return biller.consulta_rut(rut)
+        else:
+            return {}
+
     def obtenerEstadoCFE(self, biller_id):
         if self.servidor.codigo == 'biller':
             biller = Biller(self.cfe)
