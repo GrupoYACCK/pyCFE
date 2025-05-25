@@ -57,7 +57,7 @@ class Sobre:
             estado, respuesta = cliente.envioCfe(vals)
             return {'estado': estado, 'respuesta': respuesta}
         elif self.servidor.codigo == 'biller':
-            biller = Biller(self.cfe)
+            biller = Biller(self.cfe, self.impresion)
             return biller.send_einvoice()
         else:
             return {}
