@@ -1,13 +1,13 @@
-from pysimplesoap.client import SoapClient, SoapFault, SimpleXMLElement
 from lxml import etree
 import sys
+import logging
 
 from zeep import Client as ZeepClient, Settings
 from zeep.transports import Transport
+from zeep.exceptions import Fault as SoapFault  # alias para no cambiar los except existentes
 
 if sys.version > '3':
     unicode = str
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -45,38 +45,47 @@ class Client(object):
         )
 
     def _connect(self):
-
-        self._client = SoapClient(location=self._location, action=self._soapaction, namespace=self._namespace)
-
-        # self._client = SOAPProxy(self._url, self._namespace)
+        self._settings = Settings(strict=False, xml_huge_tree=True)
+        self._transport = Transport()
+        self._client = ZeepClient(self._url, transport=self._transport, settings=self._settings)
 
     def _call_ws(self, xml):
-        xml_response = self._client.send(self._method, xml)
-        logger.info(str(xml_response, 'utf-8'))
-        response = SimpleXMLElement(xml_response, namespace=self._namespace,
-                                    jetty=False)
-        if self._exceptions and response("Fault", ns=list(self._soap_namespaces.values()), error=False):
-            detailXml = response("detail", ns=list(self._soap_namespaces.values()), error=False)
-            detail = None
+        logger.info(str(xml, 'utf-8') if isinstance(xml, (bytes, bytearray)) else str(xml))
 
-            if detailXml and detailXml.children():
-                if self.services is not None:
-                    operation = self._client.get_operation(self._method)
-                    fault_name = detailXml.children()[0].get_name()
-                    # if fault not defined in WSDL, it could be an axis or other
-                    # standard type (i.e. "hostname"), try to convert it to string
-                    fault = operation['faults'].get(fault_name) or unicode
-                    detail = detailXml.children()[0].unmarshall(fault, strict=False)
-                else:
-                    detail = repr(detailXml.children())
+        parser = etree.XMLParser(strip_cdata=False)
+        root = etree.fromstring(xml if isinstance(xml, bytes) else xml.encode('utf-8'), parser)
 
-            raise SoapFault(unicode(response.faultcode),
-                            unicode(response.faultstring),
-                            detail)
+        ns = {
+            'soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
+            'ws': 'http://turobot.com/ws/ws_efacturainfo_ventas.php',
+            'wsi': 'http://www.turobot.com/soap/ws_efacturainfo_ventas',
+        }
+
+        body = root.find('.//soapenv:Body', namespaces=ns)
+        op = body.find('.//ws:RECIBESOBREVENTA', namespaces=ns)
+
+        usuario = op.findtext('usuario', namespaces=ns)
+        clave = op.findtext('clave', namespaces=ns)
+        rut_emisor = op.findtext('rutEmisor', namespaces=ns)
+        contenido_sobre = op.find('.//wsi:contenido_sobre', namespaces=ns)
+        contenido_sobre_text = contenido_sobre.text if contenido_sobre is not None else ''
+        impresion_text = op.findtext('impresion', namespaces=ns)
+        try:
+            impresion = int(impresion_text) if impresion_text is not None else None
+        except Exception:
+            impresion = None
+
+        # Llamada real con zeep (equivalente funcional)
+        response = self._client.service.RECIBESOBREVENTA(
+            usuario=usuario,
+            clave=clave,
+            rutEmisor=rut_emisor,
+            sobre={'contenido_sobre': contenido_sobre_text},
+            impresion=impresion,
+        )
         return response
 
     def _call_service(self, name, params):
-
         try:
             xml = self._soapenv % (params.get('usuario'), params.get('clave'), params.get('rutEmisor'),
                                    params.get('sobre'), params.get('impresion'))
@@ -84,30 +93,26 @@ class Client(object):
             root = etree.fromstring(xml, parser)
             xml = etree.tostring(root, pretty_print=True, xml_declaration=True, encoding='utf-8')
             logger.info(str(xml, 'utf-8'))
-            # return True, call(self._url, soapenv, namespace, soapaction = self._soapaction, encoding = "UTF-8")
-            # return True,  self._client.invoke(name, (), params)
             response = self._call_ws(xml)
-            res = {}
-            res['estado'] = str(response.estado or '')
-            res['codigosError'] = str(response.codigosError or '')
-            res['serie'] = str(response.serie or '')
-            res['numero'] = str(response.numero or '')
-            res['PDFcode'] = str(response.PDFcode or '')
-            res['QRcode'] = str(response.QRcode or '')
-            res['codigoSeg'] = str(response.codigoSeg or '')
-            res['CAE'] = str(response.CAE or '')
-            res['CAEserie'] = str(response.CAEserie or '')
-            res['CAEdesde'] = str(response.CAEdesde or '')
-            res['CAEhasta'] = str(response.CAEhasta or '')
-            res['CAEvto'] = str(response.CAEvto or '')
-            res['URLcode'] = str(response.URLcode or '')
 
+            res = {}
+            res['estado'] = str(getattr(response, 'estado', '') or '')
+            res['codigosError'] = str(getattr(response, 'codigosError', '') or '')
+            res['serie'] = str(getattr(response, 'serie', '') or '')
+            res['numero'] = str(getattr(response, 'numero', '') or '')
+            res['PDFcode'] = str(getattr(response, 'PDFcode', '') or '')
+            res['QRcode'] = str(getattr(response, 'QRcode', '') or '')
+            res['codigoSeg'] = str(getattr(response, 'codigoSeg', '') or '')
+            res['CAE'] = str(getattr(response, 'CAE', '') or '')
+            res['CAEserie'] = str(getattr(response, 'CAEserie', '') or '')
+            res['CAEdesde'] = str(getattr(response, 'CAEdesde', '') or '')
+            res['CAEhasta'] = str(getattr(response, 'CAEhasta', '') or '')
+            res['CAEvto'] = str(getattr(response, 'CAEvto', '') or '')
+            res['URLcode'] = str(getattr(response, 'URLcode', '') or '')
             return True, res
-            # service = getattr(self._client, name)
-            # return True, service(**params)
-            # return True, self._client.send("RECIBESOBREVENTA", soapenv)
+
         except SoapFault as e:
-            return False, {'faultcode': e.faultcode, 'faultstring': e.faultstring}
+            return False, {'faultcode': getattr(e, 'code', 'Fault'), 'faultstring': str(e)}
         except Exception:
             return False, {}
 
@@ -213,4 +218,3 @@ class Client(object):
         except Exception as e:
             res = {'error': str(e)}
         return res
-
