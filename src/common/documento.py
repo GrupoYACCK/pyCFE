@@ -144,17 +144,23 @@ class Documento:
         self.modalidadVenta = vals.get('modalidadVenta', '')
         self.viaTransporte = vals.get('viaTransporte', '')
 
-        items = set()
+        # items = set()
+        items = []
         for item_val in vals.get('items', []):
-            items.add(Items(item_val))
+            # items.add(Items(item_val))
+            items.append(Items(item_val))
         self.items = items
-        retencionesPercepciones = set()
+        #retencionesPercepciones = set()
+        retencionesPercepciones = []
         for ret_per_val in vals.get('retencionesPercepciones', []):
-            retencionesPercepciones.add(RetencionesPercepciones(ret_per_val))
+            # retencionesPercepciones.add(RetencionesPercepciones(ret_per_val))
+            retencionesPercepciones.append(RetencionesPercepciones(ret_per_val))
         self.retencionesPercepciones = retencionesPercepciones
-        descuentos = set()
+        # descuentos = set()
+        descuentos = []
         for desc_val in vals.get('descuentos', []):
-            descuentos.add(Descuento(desc_val))
+            # descuentos.add(Descuento(desc_val))
+            descuentos.append(Descuento(desc_val))
         self.descuentos = descuentos
         self.mntNoGrv = round(vals.get('mntNoGrv', 0.0), 2)
         self.mntNetoIVATasaMin = round(vals.get('mntNetoIVATasaMin', 0.0), 2)
@@ -169,9 +175,11 @@ class Documento:
         self.mntPagar = round(vals.get('mntPagar', 0.0), 2)
         self.referenciaGlobal = vals.get("referenciaGlobal", "")
         self.referencia = vals.get("referencia", "")
-        referencias = set()
+        # referencias = set()
+        referencias = []
         for ref in vals.get('referencias', []):
-            referencias.add(Referencia(ref))
+            # referencias.add(Referencia(ref))
+            referencias.append(Referencia(ref))
         self.referencias = referencias
         self.tipo_traslado = vals.get("tipo_traslado", "")
 
