@@ -204,6 +204,7 @@ class Items:
     def __init__(self, vals):
         self.indicadorFacturacion = vals.get('indicadorFacturacion', '')
         self.descripcion = vals.get('descripcion', '')
+        self.descripcionDetalle = vals.get('descripcionDetalle', '')
         self.cantidad = round(vals.get('cantidad', 0.0), 3)
         self.unidadMedida = vals.get('unidadMedida', 'N/A')
         self.precioUnitario = round(vals.get('precioUnitario', 0.0), 10)
