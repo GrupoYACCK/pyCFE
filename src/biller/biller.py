@@ -110,6 +110,7 @@ class Biller:
                 vals['descuento_cantidad'] = round(line.descuentoMonto, 2)
             vals['recargo_tipo'] = '$'
             vals['recargo_cantidad'] = 0
+            vals['descripcion'] = line.descripcionDetalle
             lines.append(vals)
         return {'items': lines}
 
