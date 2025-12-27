@@ -1,4 +1,7 @@
-from pysimplesoap.client import SoapClient, SoapFault
+from zeep import Client as ZeepClient, Settings
+from zeep.transports import Transport
+from zeep.exceptions import Fault
+from zeep.helpers import serialize_object
 from lxml import etree
 import requests
 from base64 import encodebytes
@@ -17,9 +20,9 @@ class Client(object):
             self._connect()
 
     def _connect(self):
-
-        self._client = SoapClient(wsdl=self._url, cache=None, ns='econ', namespace='http://eConectorWS/',
-                                           soap_ns='soapenv', soap_server="jbossas6", trace=True)
+        settings = Settings(strict=False)
+        transport = Transport()
+        self._client = ZeepClient(self._url, transport=transport, settings=settings)
 
     @staticmethod
     def _get_response(response):
@@ -64,8 +67,9 @@ class Client(object):
     def _call_service(self, name, params):
 
         try:
-            service = getattr(self._client, 'envioCfe')
-            response = service(**params)
+            service = getattr(self._client.service, name)
+            response_now = service(**params)
+            response = serialize_object(response_now)
             res = {}
             if response.get('return'):
                 data = response.get('return')
@@ -108,8 +112,8 @@ class Client(object):
             else:
                 return False, {'faultstring': 'No se pudo obtener la respuesta'}
             return True, res
-        except SoapFault as e:
-            return False, {'faultcode': e.faultcode, 'faultstring': e.faultstring}
+        except Fault as e:
+            return False, {'faultcode': e.code, 'faultstring': e.message}
         except Exception:
             return False, {}
 
