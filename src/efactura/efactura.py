@@ -257,13 +257,13 @@ class CFESimple():
             tag = etree.QName(self._ns0, 'FechaCFEref')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.fechaCFEref
             i += 1
-        if documento.referenciaGlobal == '1':
+        if documento.referenciaGlobal == 1:
             tag = etree.QName(self._ns0, 'Referencia')
             referencia = etree.SubElement(referenciam, tag.text, nsmap={'ns0':tag.namespace})
             tag = etree.QName(self._ns0, 'NroLinRef')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(i)
             tag = etree.QName(self._ns0, 'IndGlobal')
-            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= documento.referenciaGlobal
+            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.referenciaGlobal)
             tag = etree.QName(self._ns0, 'RazonRef')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= documento.referencia
         
