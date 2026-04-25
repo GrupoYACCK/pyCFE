@@ -258,6 +258,10 @@ class CFESimple():
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.numero
             tag = etree.QName(self._ns0, 'FechaCFEref')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.fechaCFEref
+            # Campo nuevo
+            if ref.total != 0.0:
+                tag = etree.QName(self._ns0, 'MntoCFERef')
+                etree.SubElement(referencia, tag.text, nsmap={'ns0': tag.namespace}).text = str(ref.total)
 
     def _getDescuento(self, documento, etck):
         if documento.descuentos:
