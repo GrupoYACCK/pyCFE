@@ -240,16 +240,14 @@ class CFESimple():
         tag = etree.QName(self._ns0, 'Referencia')
         referenciam = etree.SubElement(etck, tag.text, nsmap={'ns0':tag.namespace})
         
-        tag = etree.QName(self._ns0, 'Referencia')
-        referencia = etree.SubElement(referenciam, tag.text, nsmap={'ns0':tag.namespace})
-        
-        tag = etree.QName(self._ns0, 'NroLinRef')
-        etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(len(documento.referencias))
-        
         #tag = etree.QName(self._ns0, 'RazonRef')
         #etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=documento.name
-        
+        i = 1
         for ref in documento.referencias:
+            tag = etree.QName(self._ns0, 'Referencia')
+            referencia = etree.SubElement(referenciam, tag.text, nsmap={'ns0':tag.namespace})
+            tag = etree.QName(self._ns0, 'NroLinRef')
+            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(i)
             tag = etree.QName(self._ns0, 'TpoDocRef')
             etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text=ref.tipoDocRef
             tag = etree.QName(self._ns0, 'Serie')
@@ -262,7 +260,17 @@ class CFESimple():
             if ref.total != 0.0:
                 tag = etree.QName(self._ns0, 'MntoCFERef')
                 etree.SubElement(referencia, tag.text, nsmap={'ns0': tag.namespace}).text = str(ref.total)
-
+            i += 1
+        if documento.referenciaGlobal == 1:
+            tag = etree.QName(self._ns0, 'Referencia')
+            referencia = etree.SubElement(referenciam, tag.text, nsmap={'ns0':tag.namespace})
+            tag = etree.QName(self._ns0, 'NroLinRef')
+            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(i)
+            tag = etree.QName(self._ns0, 'IndGlobal')
+            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= str(documento.referenciaGlobal)
+            tag = etree.QName(self._ns0, 'RazonRef')
+            etree.SubElement(referencia, tag.text, nsmap={'ns0':tag.namespace}).text= documento.referencia
+        
     def _getDescuento(self, documento, etck):
         if documento.descuentos:
             tag = etree.QName(self._ns0, 'DscRcgGlobal')
